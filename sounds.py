@@ -2,14 +2,17 @@ import os
 from tkinter import *
 import pygame
 from tkinter import filedialog
+import time
+from mutagen.mp3 import MP3
 
 root = Tk()
 root.title("My MP3 Player")
-root.geometry("400x300")
+root.geometry("400x320")
 
 pygame.mixer.init()  # Initialize Pygame Mixer
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'audio'))  # Base path for audio files
 paused = False
+playing = False  # Flag to check if the song is playing
 
 
 def add_song():  # Add song into the playlist
@@ -37,11 +40,26 @@ def add_many_songs():  # Add many songs into the playlist
 def delete_song():  # Delete the currently selected song in the playlist
     playlist.delete(ANCHOR)
     pygame.mixer.music.stop()
+    stop()  # Call stop to clear the status bar
 
 
 def delete_all_songs():  # Delete all songs in the playlist
     playlist.delete(0, END)
     pygame.mixer.music.stop()
+    stop()  # Call stop to clear the status bar
+
+
+def song_time():  # Grab song length time
+    if playing:  # Only update if the song is playing
+        curr_time = pygame.mixer.music.get_pos() / 1000  # Grab current song elapsed time
+        converted_curr_time = time.strftime('%M:%S', time.gmtime(curr_time))  # Convert to time format
+        song = playlist.get(ACTIVE)  # Get song title from playlist
+        song_path = os.path.join(base_path, f'{song}.mp3')
+        song_mut = MP3(song_path)  # Load song with mutagen
+        song_len = song_mut.info.length  # Get song length in seconds
+        converted_song_len = time.strftime('%M:%S', time.gmtime(song_len))  # Convert to time format
+        status_bar.config(text=f'Time Elapsed: {converted_curr_time} of {converted_song_len} ')  # Output to status bar
+        status_bar.after(1000, song_time)  # Update time
 
 
 def backward():
@@ -55,13 +73,17 @@ def backward():
         playlist.selection_clear(0, END)  # Clear active bar in playlist listbox
         playlist.activate(prev_song)  # Activate new song bar
         playlist.selection_set(prev_song, last=None)  # Set active bar to prev song
+        song_time()  # Call song_time() to get the song time
 
 
 def play():  # Play the selected song
+    global playing
     song = playlist.get(ACTIVE)
     song_path = os.path.join(base_path, f'{song}.mp3')
     pygame.mixer.music.load(song_path)
     pygame.mixer.music.play(loops=0)
+    playing = True  # Set playing flag to True
+    song_time()  # Call song_time() to get the song time
 
 
 def pause():  # Pause the song that currently playing
@@ -75,8 +97,11 @@ def pause():  # Pause the song that currently playing
 
 
 def stop():  # Stop the song that's currently playing
+    global playing
     pygame.mixer.music.stop()
     playlist.selection_clear(ACTIVE)
+    playing = False  # Set playing flag to False
+    status_bar.config(text='')  # Clear status bar
 
 
 def forward():
@@ -90,6 +115,7 @@ def forward():
         playlist.selection_clear(0, END)  # Clear active bar in playlist listbox
         playlist.activate(next_song)  # Activate new song bar
         playlist.selection_set(next_song, last=None)  # Set active bar to next song
+        song_time()  # Call song_time() to get the song time
 
 
 playlist = Listbox(root, bg="black", fg="white", width=60, selectbackground="Grey")  # Create song box
@@ -128,5 +154,8 @@ delete_song_menu = Menu(my_menu)  # Create delete song menu
 my_menu.add_cascade(label="Delete Songs", menu=delete_song_menu)
 delete_song_menu.add_command(label="Delete a Song from Playlist", command=delete_song)  # Delete a song
 delete_song_menu.add_command(label="Delete All Songs from Playlist", command=delete_all_songs)  # Delete all songs
+
+status_bar = Label(root, text="", borderwidth=1, relief=GROOVE, anchor=E)  # Create status bar
+status_bar.pack(fill=X, side=BOTTOM, ipady=2)
 
 root.mainloop()

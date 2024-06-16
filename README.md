@@ -9,6 +9,7 @@ pause, stop, and navigate through a playlist of MP3 files.
 - Add single or multiple songs to the playlist.
 - Play, pause, stop, and navigate through the songs.
 - Loop around the playlist when navigating forward or backward.
+- Display the elapsed and total time of the currently playing song.
 
 ## Prerequisites
 
@@ -17,6 +18,7 @@ Before running the project, ensure you have the following installed:
 - Python 3.x
 - Tkinter (usually comes with Python)
 - Pygame
+- Mutagen
 
 ## Installation
 
@@ -30,7 +32,7 @@ Before running the project, ensure you have the following installed:
 2. Install Pygame:
 
     ```bash
-    pip install pygame
+    pip install pygame mutagen
     ```
    
 3. Place your MP3 files in the `audio/` directory.
