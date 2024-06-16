@@ -4,15 +4,17 @@ import pygame
 from tkinter import filedialog
 import time
 from mutagen.mp3 import MP3
+import tkinter.ttk as ttk
 
 root = Tk()
 root.title("My MP3 Player")
-root.geometry("400x320")
+root.geometry("400x450")  # 350
 
 pygame.mixer.init()  # Initialize Pygame Mixer
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'audio'))  # Base path for audio files
 paused = False
 playing = False  # Flag to check if the song is playing
+song_len = 0
 
 
 def add_song():  # Add song into the playlist
@@ -56,9 +58,11 @@ def song_time():  # Grab song length time
         song = playlist.get(ACTIVE)  # Get song title from playlist
         song_path = os.path.join(base_path, f'{song}.mp3')
         song_mut = MP3(song_path)  # Load song with mutagen
+        global song_len
         song_len = song_mut.info.length  # Get song length in seconds
         converted_song_len = time.strftime('%M:%S', time.gmtime(song_len))  # Convert to time format
         status_bar.config(text=f'Time Elapsed: {converted_curr_time} of {converted_song_len} ')  # Output to status bar
+        my_slider.config(value=int(curr_time))  # Update slider pos val to curr song pos
         status_bar.after(1000, song_time)  # Update time
 
 
@@ -84,6 +88,8 @@ def play():  # Play the selected song
     pygame.mixer.music.play(loops=0)
     playing = True  # Set playing flag to True
     song_time()  # Call song_time() to get the song time
+    slider_pos = int(song_len)  # Update slide to position
+    my_slider.config(to=slider_pos, value=0)
 
 
 def pause():  # Pause the song that currently playing
@@ -116,6 +122,10 @@ def forward():
         playlist.activate(next_song)  # Activate new song bar
         playlist.selection_set(next_song, last=None)  # Set active bar to next song
         song_time()  # Call song_time() to get the song time
+
+
+def slide(x):
+    slider_label.config(text=f'{int(my_slider.get())} of {int(song_len)}')
 
 
 playlist = Listbox(root, bg="black", fg="white", width=60, selectbackground="Grey")  # Create song box
@@ -157,5 +167,11 @@ delete_song_menu.add_command(label="Delete All Songs from Playlist", command=del
 
 status_bar = Label(root, text="", borderwidth=1, relief=GROOVE, anchor=E)  # Create status bar
 status_bar.pack(fill=X, side=BOTTOM, ipady=2)
+
+my_slider = ttk.Scale(root, from_=0, to=100, orient=HORIZONTAL, value=0, command=slide, length=360)
+my_slider.pack(pady=20)
+
+slider_label = Label(root, text="0")
+slider_label.pack(pady=10)
 
 root.mainloop()
