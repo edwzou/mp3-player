@@ -10,6 +10,7 @@ pause, stop, and navigate through a playlist of MP3 files.
 - Play, pause, stop, and navigate through the songs.
 - Loop around the playlist when navigating forward or backward.
 - Display the elapsed and total time of the currently playing song.
+- Smoothly move the slider to reflect the current position in the song.
 
 ## Prerequisites
 
@@ -48,11 +49,18 @@ python mp3_player.py
 ### GUI Controls
 
 - **Add Songs**: Use the menu to add one or multiple songs to the playlist.
+- **Delete Songs**: Use the menu to delete one or all songs off the playlist.
 - **Backward Button**: Play the previous song in the playlist.
 - **Play Button**: Play the selected song.
 - **Pause Button**: Pause or unpause the current song.
 - **Stop Button**: Stop the current song.
 - **Forward Button**: Play the next song in the playlist.
+
+### Slider Control
+
+The slider allows you to navigate through the currently playing song. It displays the current position in the song and 
+lets you manually adjust the playback position. The slider updates smoothly to reflect the elapsed time of the song, 
+providing a visual representation of the song's progress.
 
 ### Menu Options
 
